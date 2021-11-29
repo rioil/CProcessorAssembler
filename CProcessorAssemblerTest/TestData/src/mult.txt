@@ -1,0 +1,87 @@
+﻿-- 負数を含む8bitの2整数の乗算プログラム
+
+-- 初期設定
+-- 0x8000 <= 掛けられる数
+-- 0x8001 <= 掛ける数
+-- 0x8002 <= 計算結果
+-- 0x8003 <= 符号
+-- 終了後にAに掛ける数（=繰り返し回数）が入る
+SETIX 0x8000
+LDIA 4
+STDA
+SETIXL 0x01
+LDIA -5
+STDA
+
+-- 符号チェック
+-- 掛ける数のチェック
+:op2check
+LDIB 0x80       -- 上位1ビットのマスク
+ANDA            -- マスク実行
+JPZ :op1check   -- 0であれば正数なので掛けられる数のチェックへジャンプ
+LDDA            -- 掛ける数をAにロード
+DECA            -- 掛ける数の絶対値を取る
+NOTA            -- 
+STDA            -- 絶対値を格納
+LDIA 1          -- 負数フラグを立てる
+SETIXL 0x03     -- 
+STDA            -- 
+
+-- 掛けられる数のチェック
+:op1check
+SETIXL 0x00   -- 掛けられる数を
+LDDA          -- Aにロード
+ANDA          -- 上位1ビットをマスク
+JPZ :main     -- 0であれば正数なのでmain処理へジャンプ
+LDDA          -- 掛けられる数をAにロード
+DECA          -- 掛けられる数の絶対値を取る
+NOTA          -- 
+STDA          -- 絶対値を格納
+LDIA 1        -- Aに1をロード
+SETIXL 0x03   -- 負数フラグを
+LDDB          -- Bにロード
+ANDA          -- ANDを取る
+JPZ :setNegativeFlag  -- ANDの結果0であれば負数フラグを立てる処理へジャンプ
+LDIB 0            -- 1であれば負数フラグを下げる
+STDB              -- 
+JP :main          -- main処理へジャンプ
+:setNegativeFlag
+LDIA 1  -- Aに1をロード
+STDA    -- 負数フラグを立てる
+
+:main
+SETIXL 0x01 -- 掛ける数を
+LDDA        -- Aにロード
+INCA        -- インクリメントして
+DECA        -- デクリメントする（0判定）
+:mult
+JPZ :sign   -- 繰り返し終了であれば符号適用処理にジャンプ
+SETIXL 0x00 -- 掛けられる数を
+LDDA        -- Aにロード
+SETIXL 0x02 -- 計算結果を
+LDDB        -- Bにロード
+ADDB        -- B <= A + B
+STDB        -- 計算結果をメモリに格納
+SETIXL 0x01 -- 掛ける数を
+LDDA        -- Aにロード
+DECA        -- デクリメントして
+STDA        -- メモリに格納
+JP :mult    -- 掛け算処理の最初に戻る
+
+-- 符号適用処理
+:sign
+SETIXL 0x03   -- 負数フラグを
+LDDA          -- Aにロード
+DECA          -- Aをデクリメント
+JPZ :negative -- 0であれば負数フラグが立っているので符号適用処理へジャンプ
+JP :end       -- 0でなければ負数フラグは立っていないので終了地点へジャンプ
+:negative
+SETIXL 0x02   -- 計算結果を
+LDDB          -- Bにロード
+NOTB          -- 2の補数を取って符号を適用する
+INCB          -- 
+STDB          -- 符号適用後の結果を格納
+
+:end
+NOP
+JP :end

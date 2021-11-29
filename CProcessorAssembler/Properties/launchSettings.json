@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CProcessorAssembler": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\univ\\expc\\Lab1-CP-VHDL\\assign7.txt\""
+    }
+  }
+}

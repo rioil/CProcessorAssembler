@@ -1,0 +1,4 @@
+STDA
+STDB
+STDI 6
+STDI 0x6
