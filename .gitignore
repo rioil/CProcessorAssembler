@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# テストの一時ファイルは除外
+CProcessorAssemblerTest/TestData/tmp
