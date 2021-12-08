@@ -21,7 +21,7 @@ namespace CProcessorAssemblerTest
             var assembler = new Assembler();
             var srcPath = Path.Combine(TEST_BASE_DIR, "src", srcFileName);
             var memFileName = Path.GetFileNameWithoutExtension(srcFileName) + ".mem";
-            var memPath = Path.Combine(TEST_BASE_DIR, "tmp", memFileName);
+            var memPath = Path.Combine(TEST_BASE_DIR, "out", memFileName);
             assembler.Execute(srcPath, memPath);
 
             var ansPath = Path.Combine(TEST_BASE_DIR, "mem", memFileName);

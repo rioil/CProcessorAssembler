@@ -24,4 +24,8 @@
     <ProjectReference Include="..\CProcessorAssembler\CProcessorAssembler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestData\out\" />
+  </ItemGroup>
+
 </Project>
