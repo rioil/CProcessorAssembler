@@ -39,6 +39,7 @@ namespace CProcessorAssembler
             var commandList = new List<Command>();
             var labelList = new Dictionary<string, Command>();
 
+            ushort address = 0;
             foreach (var line in lines) {
                 try {
                     if (string.IsNullOrWhiteSpace(line)) {
@@ -149,10 +150,18 @@ namespace CProcessorAssembler
                             throw new NotSupportedException($"Operator {ope} is not supported.");
                     }
 
+                    // アドレスの設定
+                    command.MemoryAddress = address;
+                    address += command.GetByteLen();
+
+                    // コマンドリストに追加
                     commandList.Add(command);
+
+                    // 処理待ちラベルの処理
                     processingLabelNames.ForEach(name => labelList.Add(name, command));
                     processingLabelNames.Clear();
 
+                    // Byte型オペランドの解析を行うローカル関数
                     byte ParseByteOperand()
                     {
                         var operand = StringUtil.ParseNumericString(tokens?.ElementAtOrDefault(1));
@@ -172,13 +181,6 @@ namespace CProcessorAssembler
                 finally {
                     lineNo++;
                 }
-            }
-
-            // アドレスの設定
-            ushort address = 0;
-            foreach (var command in commandList) {
-                command.MemoryAddress = address;
-                address += command.GetByteLen();
             }
 
             commands = commandList;
