@@ -124,6 +124,11 @@ namespace CProcessorAssembler.Commands
         DECB = 0x9a,
         CMP = 0xa1,
 
+        SLL = 0x70,
+        SRL = 0x71,
+        SLA = 0x72,
+        SRA = 0x73,
+
         NOP = 0x00,
         JP = 0x60,
         JPC = 0x40,

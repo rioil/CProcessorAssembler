@@ -45,4 +45,24 @@ namespace CProcessorAssembler.Commands
     {
         public STDI(byte operand, string comment) : base(ECommand.STDI, operand, comment) { }
     }
+
+    internal class SLL : ByteOperandCommand
+    {
+        public SLL(byte operand, string comment) : base(ECommand.SLL, operand, comment) { }
+    }
+
+    internal class SRL : ByteOperandCommand
+    {
+        public SRL(byte operand, string comment) : base(ECommand.SRL, operand, comment) { }
+    }
+
+    internal class SLA : ByteOperandCommand
+    {
+        public SLA(byte operand, string comment) : base(ECommand.SLA, operand, comment) { }
+    }
+
+    internal class SRA : ByteOperandCommand
+    {
+        public SRA(byte operand, string comment) : base(ECommand.SRA, operand, comment) { }
+    }
 }
