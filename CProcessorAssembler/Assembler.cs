@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using CProcessorAssembler.Commands;
 using CProcessorAssembler.Utils;
+using CProcessorAssembler.Generators;
 
 namespace CProcessorAssembler
 {
@@ -14,13 +15,15 @@ namespace CProcessorAssembler
         /// 
         /// </summary>
         /// <param name="srcPath"></param>
-        /// <param name="outputPath"></param>
+        /// <param name="generators"></param>
         /// <exception cref="NotSupportedException"></exception>
         /// <exception cref="FormatException"></exception>
-        public void Execute(string srcPath, string outputPath)
+        public void Execute(string srcPath, params Generator[] generators)
         {
             ReadCommands(srcPath, out var commands, out var labels);
-            CreateMemoryImage(outputPath, commands, labels);
+            foreach (var generator in generators) {
+                generator.Generate(commands, labels);
+            }
         }
 
         /// <summary>
@@ -57,98 +60,39 @@ namespace CProcessorAssembler
 
                     var tokens = line.Split(' ');
                     var ope = tokens[0].ToUpper();
-                    Command command;
-                    switch (ope) {
-                        case "SETIX":
-                            command = new SETIX(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "SETIXH":
-                            command = new SETIXH(ParseByteOperand(), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "SETIXL":
-                            command = new SETIXL(ParseByteOperand(), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "LDIA":
-                            command = new LDIA(ParseByteOperand(), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "LDIB":
-                            command = new LDIB(ParseByteOperand(), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "LDDA":
-                            command = new LDDA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "LDDB":
-                            command = new LDDB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "STDA":
-                            command = new STDA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "STDB":
-                            command = new STDB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "STDI":
-                            command = new STDI(ParseByteOperand(), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "ADDA":
-                            command = new ADDA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "SUBA":
-                            command = new SUBA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "ANDA":
-                            command = new ANDA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "ORA":
-                            command = new ORA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "NOTA":
-                            command = new NOTA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "INCA":
-                            command = new INCA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "DECA":
-                            command = new DECA(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "ADDB":
-                            command = new ADDB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "SUBB":
-                            command = new SUBB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "ANDB":
-                            command = new ANDB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "ORB":
-                            command = new ORB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "NOTB":
-                            command = new NOTB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "INCB":
-                            command = new INCB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "DECB":
-                            command = new DECB(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "CMP":
-                            command = new CMP(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "NOP":
-                            command = new NOP(string.Join(" ", tokens.Skip(1)));
-                            break;
-                        case "JP":
-                            command = new JP(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "JPC":
-                            command = new JPC(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        case "JPZ":
-                            command = new JPZ(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2)));
-                            break;
-                        default:
-                            throw new NotSupportedException($"Operator {ope} is not supported.");
-                    }
+                    Command command = ope switch
+                    {
+                        "SETIX" => new SETIX(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2))),
+                        "SETIXH" => new SETIXH(ParseByteOperand(), string.Join(" ", tokens.Skip(2))),
+                        "SETIXL" => new SETIXL(ParseByteOperand(), string.Join(" ", tokens.Skip(2))),
+                        "LDIA" => new LDIA(ParseByteOperand(), string.Join(" ", tokens.Skip(2))),
+                        "LDIB" => new LDIB(ParseByteOperand(), string.Join(" ", tokens.Skip(2))),
+                        "LDDA" => new LDDA(string.Join(" ", tokens.Skip(1))),
+                        "LDDB" => new LDDB(string.Join(" ", tokens.Skip(1))),
+                        "STDA" => new STDA(string.Join(" ", tokens.Skip(1))),
+                        "STDB" => new STDB(string.Join(" ", tokens.Skip(1))),
+                        "STDI" => new STDI(ParseByteOperand(), string.Join(" ", tokens.Skip(2))),
+                        "ADDA" => new ADDA(string.Join(" ", tokens.Skip(1))),
+                        "SUBA" => new SUBA(string.Join(" ", tokens.Skip(1))),
+                        "ANDA" => new ANDA(string.Join(" ", tokens.Skip(1))),
+                        "ORA" => new ORA(string.Join(" ", tokens.Skip(1))),
+                        "NOTA" => new NOTA(string.Join(" ", tokens.Skip(1))),
+                        "INCA" => new INCA(string.Join(" ", tokens.Skip(1))),
+                        "DECA" => new DECA(string.Join(" ", tokens.Skip(1))),
+                        "ADDB" => new ADDB(string.Join(" ", tokens.Skip(1))),
+                        "SUBB" => new SUBB(string.Join(" ", tokens.Skip(1))),
+                        "ANDB" => new ANDB(string.Join(" ", tokens.Skip(1))),
+                        "ORB" => new ORB(string.Join(" ", tokens.Skip(1))),
+                        "NOTB" => new NOTB(string.Join(" ", tokens.Skip(1))),
+                        "INCB" => new INCB(string.Join(" ", tokens.Skip(1))),
+                        "DECB" => new DECB(string.Join(" ", tokens.Skip(1))),
+                        "CMP" => new CMP(string.Join(" ", tokens.Skip(1))),
+                        "NOP" => new NOP(string.Join(" ", tokens.Skip(1))),
+                        "JP" => new JP(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2))),
+                        "JPC" => new JPC(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2))),
+                        "JPZ" => new JPZ(tokens.ElementAtOrDefault(1), string.Join(" ", tokens.Skip(2))),
+                        _ => throw new NotSupportedException($"Operator {ope} is not supported."),
+                    };
 
                     // アドレスの設定
                     command.MemoryAddress = address;
@@ -185,24 +129,6 @@ namespace CProcessorAssembler
 
             commands = commandList;
             labels = labelList;
-        }
-
-        private void CreateMemoryImage(string path, IEnumerable<Command> commands, Dictionary<string, Command> labels)
-        {
-            int address = 0;
-            using var writer = new StreamWriter(path, false);
-            foreach (var command in commands) {
-                var bytes = command.ToBytes(labels);
-                var comment = command.Comment;
-                foreach (var data in bytes) {
-                    writer.Write(address.ToString("X4"));
-                    writer.Write("\t\t");
-                    writer.Write(data.ToString("X2"));
-                    writer.WriteLine($"\t\t\t-- {comment}");
-                    comment = string.Empty; // 最初の行だけコメントを出す
-                    address++;
-                }
-            }
         }
     }
 

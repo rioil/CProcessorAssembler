@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CProcessorAssembler.Generators;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -15,13 +16,16 @@ namespace CProcessorAssembler
 
             // ソースファイルの存在確認
             string srcPath = string.Empty;
-            string outputPath;
             if (!CheckAndSetSrcPath()) { return -1; }
-            if (!CheckAndSetOutputPath()) { return -1; }
+
+            if (!CheckAndSetOutputPathWitoutExtension()) { return -1; }
 
             var assembler = new Assembler();
+            string outputPathWithoutExtension;
+            var memGenerator = new MemGenerator(outputPathWithoutExtension);
+            var mifGenerator = new MifGenerator(outputPathWithoutExtension);
             try {
-                assembler.Execute(srcPath, outputPath);
+                assembler.Execute(srcPath, memGenerator, mifGenerator);
             }
             catch (Exception ex) {
                 Console.WriteLine($"Error Occured: {ex.Message}");
@@ -48,26 +52,16 @@ namespace CProcessorAssembler
                 return true;
             }
 
-            bool CheckAndSetOutputPath()
+            bool CheckAndSetOutputPathWitoutExtension()
             {
-                if (args.Length >= 2) {
-                    outputPath = args[1];
-                }
-                else {
-                    outputPath = Path.Combine(
-                        Path.GetDirectoryName(srcPath) ?? string.Empty,
-                        $"{Path.GetFileNameWithoutExtension(srcPath)}.{OUTPUT_EXTENSION}");
-                }
+                outputPathWithoutExtension = Path.Combine(
+                    Path.GetDirectoryName(args.ElementAtOrDefault(1)) ?? string.Empty,
+                    Path.GetFileNameWithoutExtension(srcPath));
 
                 // 出力先フォルダが存在しなければ作成
-                var outputDir = Path.GetDirectoryName(outputPath);
+                var outputDir = Path.GetDirectoryName(outputPathWithoutExtension);
                 if (!string.IsNullOrEmpty(outputDir)) {
                     Directory.CreateDirectory(outputDir);
-                }
-
-                // 上書き通知
-                if (File.Exists(outputPath)) {
-                    Console.WriteLine($"{outputPath} に上書き出力します．");
                 }
 
                 return true;

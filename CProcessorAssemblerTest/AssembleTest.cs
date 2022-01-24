@@ -1,4 +1,5 @@
 using CProcessorAssembler;
+using CProcessorAssembler.Generators;
 using System.IO;
 using Xunit;
 
@@ -22,8 +23,13 @@ namespace CProcessorAssemblerTest
             var memPath = CreateMemPath(srcFileName);
             var ansPath = CreateAnsPath(srcFileName);
 
+            // Generatorには拡張子なしのファイルパスを渡す
+            var extension = Path.GetExtension(srcPath);
+            var filePathWitoutExtension = memPath.Remove(memPath.Length - extension.Length, extension.Length);
+            var generator = new MemGenerator(filePathWitoutExtension);
+
             var assembler = new Assembler();
-            assembler.Execute(srcPath, memPath);
+            assembler.Execute(srcPath, generator);
 
             AssertMemOutput(memPath, ansPath);
         }
