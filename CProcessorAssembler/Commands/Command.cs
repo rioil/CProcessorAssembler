@@ -24,7 +24,8 @@ namespace CProcessorAssembler.Commands
             {
                 ECommand.SETIX => 4,
                 ECommand.JP or ECommand.JPC or ECommand.JPZ => 3,
-                ECommand.SETIXH or ECommand.SETIXL or ECommand.LDIA or ECommand.LDIB or ECommand.STDI => 2,
+                ECommand.SETIXH or ECommand.SETIXL or ECommand.LDIA or ECommand.LDIB or ECommand.STDI
+                or ECommand.SLL or ECommand.SRL or ECommand.SLA or ECommand.SRA => 2,
                 _ => 1,
             };
         }
