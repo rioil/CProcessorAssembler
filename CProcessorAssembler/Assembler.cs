@@ -45,16 +45,19 @@ namespace CProcessorAssembler
             ushort address = 0;
             foreach (var line in lines) {
                 try {
+                    // 空行はスキップ
                     if (string.IsNullOrWhiteSpace(line)) {
                         Console.WriteLine($"Skipping empty line (l.{lineNo})");
                         continue;
                     }
+                    // --始まりはコメント行として処理
                     else if (line.StartsWith("--")) {
                         Console.WriteLine($"Skipping comment line (l.{lineNo})");
                         continue;
                     }
+                    // :以降をラベルとして処理（空白以降は無視）
                     else if (line.StartsWith(":")) {
-                        processingLabelNames.Add(line[1..]);
+                        processingLabelNames.Add(line.Split(' ')[0][1..]);
                         continue;
                     }
 
